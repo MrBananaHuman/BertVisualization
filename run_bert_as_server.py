@@ -1,6 +1,5 @@
 import threading
 from flask import Flask, request, jsonify
-import kss
 import modeling
 import tokenization
 import tensorflow as tf
@@ -138,6 +137,8 @@ def ner():        #TODO To seperate sentence, return pretty json and chunk same 
         ori_input_sent = sentence
     else:
         sentence = request.args.get('sentence')
+        ori_input_sent = sentence
+    
     eval_examples, ori_sents = get_kor_examples(sentence)
 
     eval_features, tokens_list = convert_examples_to_features(
@@ -147,10 +148,10 @@ def ner():        #TODO To seperate sentence, return pretty json and chunk same 
     )
     
     max_batch_size = 20
-    total_features = [eval_features[i:i + max_batch_size] for i in range(0, len(eval_features), max_batch_size)]
+    #total_features = [eval_features[i:i + max_batch_size] for i in range(0, len(eval_features), max_batch_size)]
 
-    for batch_num, eval_features_ in enumerate(total_features):
-        result_all_output_layer, result_embedding_output = sess.run(predict_, feed_dict=get_feed_dict(eval_features_))
+    #for batch_num, eval_features_ in enumerate(total_features):
+    result_all_output_layer, result_embedding_output = sess.run(predict_, feed_dict=get_feed_dict(eval_features))
        # embedding_layer_output.write(str(result_embedding_output[0].tolist()) + '\n')
 
         #layer_one_output.write(str(result_all_output_layer[0][0].tolist()) + '\n')
@@ -184,10 +185,10 @@ def ner():        #TODO To seperate sentence, return pretty json and chunk same 
         #print(len(result_all_output_layer[0][0]))   # total 20 sequence
         #print(len(result_all_output_layer[0][0][0]))   # total 768 embeddings
         #print('-----')
-        print(result_embedding_output)
+    print(result_embedding_output)
         #print(result_embedding_output.shape)    # 1, 20, 768
 
-    return json.dumps({"sent": str("null")}, ensure_ascii=False)
+    return json.dumps({"input_sentence": ori_input_sent, "embedding": result_embedding_output[0].tolist()}, ensure_ascii=False)
 
 
 
