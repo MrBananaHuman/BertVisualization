@@ -1,16 +1,20 @@
 color from =   color(255, 0, 0);
 color to = color(0, 0, 255);
-
+float colorNum = 0;
 void setup(){
   size(400, 400);
   noStroke();
-  noLoop();
   background(51);
   colorMode(HSB, 255);
+  frameRate(30);
 }
 
 void draw(){
-  lerpBar(20, 20, 360, 40, from, to);
+  lerpBar(20, 20, 360, 40, to, from);
+  colorNum += 0.01;
+  if(colorNum > 1){
+    colorNum = 0;
+  }
 }
 
 void lerpBar(int x, int y, int w, int h, color... colors) {
@@ -20,6 +24,11 @@ void lerpBar(int x, int y, int w, int h, color... colors) {
     line(x+i, y, x+i, y+h);
   }
   popStyle();
+  pushStyle();
+  fill(lerpColors(colorNum, colors));
+  rect(x, y + h + 30, w, height - 100);
+  popStyle();
+  
 }
 
 color lerpColors(float amt, color... colors) {
