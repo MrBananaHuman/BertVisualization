@@ -128,7 +128,7 @@ model_loader = tf.train.Saver()
 model_loader.restore(sess, "../bert_en_model/bert_model.ckpt")
 app = Flask(__name__)
 @app.route('/visualization', methods=['GET', 'POST'])
-def ner():        #TODO To seperate sentence, return pretty json and chunk same tags
+def visualization():
     with threading.Semaphore(1):
         ori_input_sent = ''
     if request.method == 'POST':
@@ -146,47 +146,10 @@ def ner():        #TODO To seperate sentence, return pretty json and chunk same 
         tokenizer=tokenizer,
         max_seq_length=512,
     )
-    
-    max_batch_size = 20
-    #total_features = [eval_features[i:i + max_batch_size] for i in range(0, len(eval_features), max_batch_size)]
 
-    #for batch_num, eval_features_ in enumerate(total_features):
     result_all_output_layer, result_embedding_output = sess.run(predict_, feed_dict=get_feed_dict(eval_features))
-       # embedding_layer_output.write(str(result_embedding_output[0].tolist()) + '\n')
 
-        #layer_one_output.write(str(result_all_output_layer[0][0].tolist()) + '\n')
-        #layer_two_output.write(str(result_all_output_layer[1][0].tolist()) + '\n')
-        #layer_three_output.write(str(result_all_output_layer[2][0].tolist()) + '\n')
-        #layer_four_output.write(str(result_all_output_layer[3][0].tolist()) + '\n')
-        #layer_five_output.write(str(result_all_output_layer[4][0].tolist()) + '\n')
-        #layer_six_output.write(str(result_all_output_layer[5][0].tolist()) + '\n')
-        #layer_seven_output.write(str(result_all_output_layer[6][0].tolist()) + '\n')
-        #layer_eight_output.write(str(result_all_output_layer[7][0].tolist()) + '\n')
-        #layer_nine_output.write(str(result_all_output_layer[8][0].tolist()) + '\n')
-        #layer_ten_output.write(str(result_all_output_layer[9][0].tolist()) + '\n')
-        #layer_eleven_output.write(str(result_all_output_layer[10][0].tolist()) + '\n')
-        #layer_twelve_output.write(str(result_all_output_layer[11][0].tolist()) + '\n')
-
-        #layer_one_output.flush()
-        #layer_two_output.flush()
-        #layer_three_output.flush()
-        #layer_four_output.flush()
-        #layer_five_output.flush()
-        #layer_six_output.flush()
-        #layer_seven_output.flush()
-        #layer_eight_output.flush()
-        #layer_nine_output.flush()
-        #layer_ten_output.flush()
-        #layer_eleven_output.flush()
-        #layer_twelve_output.flush()        
-
-        #print(len(result_all_output_layer)) # total 12 layers
-        #print(len(result_all_output_layer[0]))  # for 1 example
-        #print(len(result_all_output_layer[0][0]))   # total 20 sequence
-        #print(len(result_all_output_layer[0][0][0]))   # total 768 embeddings
-        #print('-----')
     print(result_embedding_output)
-        #print(result_embedding_output.shape)    # 1, 20, 768
 
     return json.dumps({"input_sentence": ori_input_sent, "embedding": result_embedding_output[0].tolist()}, ensure_ascii=False)
 
