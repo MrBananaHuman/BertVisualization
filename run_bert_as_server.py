@@ -109,8 +109,8 @@ def get_feed_dict(features):
     return {input_ids: input_ids_list, input_mask:input_mask_list, segment_ids:segment_ids_list}
 
 
-bert_config = modeling.BertConfig.from_json_file("../bert_en_model/bert_config.json")
-tokenizer = tokenization.FullTokenizer(vocab_file="../bert_en_model/vocab.txt", do_lower_case=False)
+bert_config = modeling.BertConfig.from_json_file("../multilingual_model/bert_config.json")
+tokenizer = tokenization.FullTokenizer(vocab_file="../multilingual_model/vocab.txt", do_lower_case=False)
 
 input_ids = tf.placeholder(shape=[None,None], dtype=tf.int32)
 input_mask = tf.placeholder(shape=[None,None], dtype=tf.int32)
@@ -125,7 +125,7 @@ tf_config = tf.ConfigProto()
 sess = tf.Session(config = tf_config)
 sess.run(tf.global_variables_initializer())
 model_loader = tf.train.Saver()
-model_loader.restore(sess, "../bert_en_model/bert_model.ckpt")
+model_loader.restore(sess, "../multilingual_model/bert_model.ckpt")
 app = Flask(__name__)
 @app.route('/visualization', methods=['GET', 'POST'])
 def visualization():
@@ -134,9 +134,11 @@ def visualization():
     if request.method == 'POST':
         json_data = request.get_json(force=True)
         sentence = json_data['sentence']
+        layer_num = int(json_data['layer'])
         ori_input_sent = sentence
     else:
         sentence = request.args.get('sentence')
+        layer_num = int(request.args.get('layer'))
         ori_input_sent = sentence
     
     eval_examples, ori_sents = get_kor_examples(sentence)
@@ -146,12 +148,16 @@ def visualization():
         tokenizer=tokenizer,
         max_seq_length=512,
     )
-
     result_all_output_layer, result_embedding_output = sess.run(predict_, feed_dict=get_feed_dict(eval_features))
 
-    print(result_embedding_output)
+    #print(result_embedding_output)
+    return_result = ''
+    if layer_num == -1:
+        return_result = json.dumps({"input_sentence": ori_input_sent, "tokens":tokens_list[0], "return_layer": layer_num, "vectors": result_embedding_output[0].tolist()}, ensure_ascii=False)
+    else:
+        return_result = json.dumps({"input_sentence": ori_input_sent, "tokens":tokens_list[0], "return_layer": layer_num, "vectors": result_all_output_layer[layer_num][0].tolist()}, ensure_ascii=False)
 
-    return json.dumps({"input_sentence": ori_input_sent, "embedding": result_embedding_output[0].tolist()}, ensure_ascii=False)
+    return return_result
 
 
 
