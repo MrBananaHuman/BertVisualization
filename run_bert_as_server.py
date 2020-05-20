@@ -7,6 +7,7 @@ import json
 import collections
 import time
 import sys
+import numpy as np
 
 
 class InputFeatures(object):
@@ -152,10 +153,15 @@ def visualization():
 
     #print(result_embedding_output)
     return_result = ''
+    cls_vector = ''
     if layer_num == -1:
-        return_result = json.dumps({"input_sentence": ori_input_sent, "tokens":tokens_list[0], "return_layer": layer_num, "vectors": result_embedding_output[0].tolist()}, ensure_ascii=False)
+        cls_vector = result_embedding_output[0][0]
     else:
-        return_result = json.dumps({"input_sentence": ori_input_sent, "tokens":tokens_list[0], "return_layer": layer_num, "vectors": result_all_output_layer[layer_num][0].tolist()}, ensure_ascii=False)
+        cls_vector = result_all_output_layer[layer_num][0][0]
+    exponentials = np.exp(cls_vector)
+    sum_exponentials = sum(exponentials)
+    cls_vector_result = exponentials / sum_exponentials
+    return_result = json.dumps({"input_sentence": ori_input_sent, "tokens":tokens_list[0], "return_layer": layer_num, "vectors": cls_vector_result.tolist()}, ensure_ascii=False)
 
     return return_result
 
