@@ -3,6 +3,8 @@ Project for visualizing BERT model
 
 Requirements
 
-Flask >=
+I only tested with these versions.
 
-Tensorflow >=
+Flask == 1.1.1
+
+Tensorflow == 1.14
