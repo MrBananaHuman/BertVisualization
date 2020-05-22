@@ -13,3 +13,4 @@ Usage
 
 - python3 run_bert_as_server.py 
 
+- run ClsTokenVisualization Processing project
