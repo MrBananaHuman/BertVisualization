@@ -158,9 +158,15 @@ def visualization():
         cls_vector = result_embedding_output[0][0]
     else:
         cls_vector = result_all_output_layer[layer_num][0][0]
-    exponentials = np.exp(cls_vector)
-    sum_exponentials = sum(exponentials)
-    cls_vector_result = exponentials / sum_exponentials
+    # softmax way    
+    #exponentials = np.exp(cls_vector)  
+    #sum_exponentials = sum(exponentials)
+    #cls_vector_result = exponentials / sum_exponentials
+    # normalization
+    min_value = abs(cls_vector.min())
+    cls_vector = cls_vector + min_value
+    max_value = abs(cls_vector.max())
+    cls_vector_result = cls_vector/max_value
     return_result = json.dumps({"input_sentence": ori_input_sent, "tokens":tokens_list[0], "return_layer": layer_num, "vectors": cls_vector_result.tolist()}, ensure_ascii=False)
 
     return return_result
